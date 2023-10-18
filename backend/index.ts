@@ -15,10 +15,10 @@ app.use(bodyParser.json());
  * @test curl -X POST -H "Content-Type: application/json" -d "{\"key\":\"value\"}" http://localhost:3000
  * @param {string} key - The key to use for authentication, found in private.json
  */
-app.post('/', (req, res) => {
+app.post('/api', (req, res) => {
   const key = req.body.key || "";
   if (!key || key !== config.key) {
-    res.send('Hello, Express!');
+    res.send('<h1>Key Not Accepted</h1>');
   } else {
     res.send('<h1>Key Accepted</h1>');
   }
