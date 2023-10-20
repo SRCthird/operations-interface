@@ -53,6 +53,10 @@ class line_goal(models.Model):
 
     def __str__(self):
         return f"{self.line}: {self.shift} Shift"
+    
+    class Meta:
+        verbose_name = "Line Goal"
+        ordering = ['line', 'shift']
 
 class line_reject(models.Model):
     id = models.AutoField(
@@ -70,6 +74,9 @@ class line_reject(models.Model):
     def __str__(self):
         return f"{self.line}: {self.reason}"
     
+    class Meta:
+        verbose_name = "Line Reject"
+
 class line_downtime(models.Model):
     id = models.AutoField(
         primary_key=True
@@ -86,6 +93,8 @@ class line_downtime(models.Model):
     def __str__(self):
         return f"{self.line}: {self.reason}"
     
+    class Meta:
+        verbose_name = "Line Downtime"
 class employee(models.Model):
     user = models.OneToOneField(
         User, 
@@ -114,6 +123,9 @@ class catalog_number(models.Model):
 
     def __str__(self):
         return self.catalog_number
+    
+    class Meta:
+        verbose_name = "Catalog Number"
 
 class catalog_material(models.Model):
     id = models.AutoField(
@@ -127,7 +139,7 @@ class catalog_material(models.Model):
     material_name = models.CharField(
         max_length=255
     )
-    avg_per_each = models.DecimalField(
+    avg_per_unit = models.DecimalField(
         max_digits=15, decimal_places=6
     )
     unit_of_measure = models.CharField(
@@ -135,12 +147,32 @@ class catalog_material(models.Model):
     )
 
     def __str__(self):
-        return f"{self.catalog_material}: {self.material_name}"
+        return f"{self.catalog_number}: {self.material_name}"
     
+    class Meta:
+        verbose_name = "Catalog Material"
+
 class workorder(models.Model):
+    status_choice = [
+        ('1', 'Released'),
+        ('2', 'In Progress'),
+        ('3', 'On Hold'),
+        ('4', 'Rework'),
+        ('5', 'Lot Release'),
+        ('6', 'Scrapped'),
+        ('7', 'Completed'),
+    ]
     workorder = models.CharField(
         max_length=25, 
         primary_key=True
+    )
+    lot_number = models.CharField(
+        max_length=25
+    )
+    status = models.CharField(
+        max_length=25,
+        choices=status_choice,
+        default='Scheduled'
     )
     catalog_number = models.ForeignKey(
         catalog_number,  
@@ -148,13 +180,13 @@ class workorder(models.Model):
         to_field='catalog_number'
     )
     quantity_start = models.IntegerField()
-    quantity_active = models.IntegerField()
-    lot_number = models.CharField(
-        max_length=25
-    )
     priority = models.IntegerField()
     scheduled_start = models.DateField()
-    actual_start = models.DateField()
+    actual_start = models.DateField(
+        null=True,
+        blank=True,
+        help_text="The actual start date of the workorder."
+    )
     due_date = models.DateField()
     wj_printed = models.BooleanField(
         default=False
@@ -186,9 +218,6 @@ class schedule(models.Model):
         on_delete=models.CASCADE,
         to_field='name'
     )
-    status = models.CharField(
-        max_length=25
-    )
 
     def __str__(self):
         return f"{self.workorder} on {self.line}"
@@ -210,8 +239,15 @@ class material(models.Model):
     )
     part_number = models.ForeignKey(
         catalog_material, 
-        on_delete=models.CASCADE,
-        to_field='id'
+        #choices=
+        #SELECT material_name 
+        #FROM catalog_material 
+        #INNER JOIN catalog_number  
+        #ON catalog_material.catalog_number = catalog_number.id
+        #INNER JOIN workorder 
+        #ON workorder.catalog_number = catalog_number.catalog_number
+        #WHERE workorder.id = {seld.workorder}
+        on_delete=models.CASCADE
     )
     quantity = models.IntegerField()
     line_down_at = models.IntegerField()
