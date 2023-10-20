@@ -19,7 +19,8 @@ class department(models.Model):
 class line(models.Model):
     name = models.CharField(
         max_length=255, 
-        primary_key=True
+        primary_key=True,
+        help_text="Enter the name of the line. This field must be unique."
     )
     description = models.TextField()
     department = models.ForeignKey(
