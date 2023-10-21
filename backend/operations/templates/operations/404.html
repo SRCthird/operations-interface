@@ -210,7 +210,11 @@
                     </div>
                     <div class="msg">OH!<span class="triangle"></span></div>
                 </div>
-                <h2 class="h1">Sorry! Page not found</h2>
+                <h2 class="h1">
+                {% if exception %}
+                    <strong>Sorry!</strong> {{ exception }}
+                {% endif %}
+                </h2>
             </div>
         </div>
     </div>
