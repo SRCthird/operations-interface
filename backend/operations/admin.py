@@ -2,6 +2,7 @@ from manager import settings
 from django.contrib import admin
 from django.db.models import Sum
 from django.utils.dateformat import DateFormat
+from . import forms
 from .models import *
 
 admin.AdminSite.site_header = settings.OPERATIONS_ADMIN_HEADER
@@ -186,10 +187,9 @@ class ScheduleAdmin(admin.ModelAdmin):
 
 @admin.register(material)
 class MaterialAdmin(admin.ModelAdmin):
-    
-    class Media:
-        js = ('operations/js/dynamic_updates.js',)
 
+    form = forms.MaterialAdminForm
+    
     list_display = ('line', 'request_type', 'workorder', 'part_number', 'quantity', 'line_down_at', 'uid', 'comments', 'delivery_status')
     list_filter = ('line','request_type', 'workorder', 'delivery_status')
     search_fields = ('line__name','request_type', 'workorder__workorder_number',)
@@ -205,3 +205,6 @@ class MaterialAdmin(admin.ModelAdmin):
             'fields': ('uid', 'comments', 'delivery_status')
         })
     )
+    
+    class Media:
+        js = ('operations/js/dynamic_updates.js',) # Dynamically update part number based on workorder's catalog number
