@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+import datetime
 
 # Create your models here.
 class department(models.Model):
@@ -154,13 +156,13 @@ class catalog_material(models.Model):
 
 class workorder(models.Model):
     status_choice = [
-        ('1', 'Released'),
-        ('2', 'In Progress'),
-        ('3', 'On Hold'),
-        ('4', 'Rework'),
-        ('5', 'Lot Release'),
-        ('6', 'Scrapped'),
-        ('7', 'Completed'),
+        (1, 'Released'),
+        (2, 'In Progress'),
+        (3, 'On Hold'),
+        (4, 'Rework'),
+        (5, 'Lot Release'),
+        (6, 'Scrapped'),
+        (7, 'Completed'),
     ]
     workorder = models.CharField(
         max_length=25, 
@@ -223,6 +225,18 @@ class schedule(models.Model):
         return f"{self.workorder} on {self.line}"
 
 class material(models.Model):
+    request_choice = [
+        (1, 'New Lot'),
+        (2, 'New Rack'),
+        (3, 'Replacement Rack'),
+        (4, 'Project Lot'),
+    ]
+    
+    def default_time_down():
+        """Get the current time + 90 minutes"""
+        print("Time now: ", timezone.now())
+        return timezone.now() + datetime.timedelta(minutes=90)
+    
     id = models.AutoField(
         primary_key=True
     )
@@ -231,7 +245,10 @@ class material(models.Model):
         on_delete=models.CASCADE,
         to_field='name'
     )
-    request_type = models.CharField(max_length=25)
+    request_type = models.CharField(
+        max_length=25,
+        choices=request_choice
+    )
     workorder = models.ForeignKey(
         workorder, 
         on_delete=models.CASCADE,
@@ -239,18 +256,12 @@ class material(models.Model):
     )
     part_number = models.ForeignKey(
         catalog_material, 
-        #choices=
-        #SELECT material_name 
-        #FROM catalog_material 
-        #INNER JOIN catalog_number  
-        #ON catalog_material.catalog_number = catalog_number.id
-        #INNER JOIN workorder 
-        #ON workorder.catalog_number = catalog_number.catalog_number
-        #WHERE workorder.id = {seld.workorder}
         on_delete=models.CASCADE
     )
     quantity = models.IntegerField()
-    line_down_at = models.IntegerField()
+    line_down_at = models.DateTimeField(
+        default=default_time_down
+    )
     uid = models.ForeignKey(
         employee, 
         on_delete=models.CASCADE
