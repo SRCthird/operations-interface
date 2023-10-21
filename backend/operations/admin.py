@@ -1,11 +1,12 @@
+from manager import settings
 from django.contrib import admin
 from django.db.models import Sum
+from django.utils.dateformat import DateFormat
 from .models import *
 
-admin.AdminSite.site_header = 'Jaffrey Operations Administration'
-admin.AdminSite.site_title = 'Jaffrey Operations Administration'
-admin.AdminSite.index_title = 'Site Administration'
-from django.utils.dateformat import DateFormat
+admin.AdminSite.site_header = settings.OPERATIONS_ADMIN_HEADER
+admin.AdminSite.site_title = settings.OPERATIONS_ADMIN_TITLE
+admin.AdminSite.index_title = settings.OPERATIONS_ADMIN_INDEX_TITLE
 
 # Register your models here.        
 @admin.register(department)
