@@ -12,6 +12,7 @@ __pycache__/
 private.*
 profiles/
 settings.py
+*.sqlite3
 
 # production
 /build
