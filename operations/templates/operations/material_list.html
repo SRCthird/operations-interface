@@ -1,0 +1,19 @@
+<h1>My Model List</h1>
+<a href="{% url 'mymodel_create' %}">Add New Item</a>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Actions</th>
+    </tr>
+    {% for object in object_list %}
+        <tr>
+            <td>{{ object.name }}</td>
+            <td>{{ object.description }}</td>
+            <td>
+                <a href="{% url 'mymodel_update' pk=object.pk %}">Edit</a>
+                <a href="{% url 'mymodel_delete' pk=object.pk %}">Delete</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
