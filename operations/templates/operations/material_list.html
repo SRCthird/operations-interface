@@ -1,19 +1,41 @@
-<h1>My Model List</h1>
-<a href="{% url 'mymodel_create' %}">Add New Item</a>
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Actions</th>
-    </tr>
-    {% for object in object_list %}
-        <tr>
-            <td>{{ object.name }}</td>
-            <td>{{ object.description }}</td>
-            <td>
-                <a href="{% url 'mymodel_update' pk=object.pk %}">Edit</a>
-                <a href="{% url 'mymodel_delete' pk=object.pk %}">Delete</a>
-            </td>
-        </tr>
-    {% endfor %}
-</table>
+{% extends 'operations/base.html' %}
+
+{% block title %}Materials List - {{ block.super }}{% endblock %}
+{% block content %}
+<div class="content-section">
+    <div class="content-section-title">Materials List</div>
+        <a class="content-button" style="max-width: 200px; width: auto; text-decoration: none;" href="{% url 'material_create' %}">Add New Item</a>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Line</th>
+                <th>Request Type</th>
+                <th>Workorder</th>
+                <th>Part Number</th>
+                <th>Line Down At</th>
+                <th>MUID</th>
+                <th>Comments</th>
+                <th>Status</th>
+            </tr>
+            {% for object in object_list %}
+                <tr>
+                    <td>{{ object.id }}</td>
+                    <td>{{ object.line }}</td>
+                    <td>{{ object.request_type }}</td>
+                    <td>{{ object.workorder }}</td>
+                    <td>{{ object.part_numnber }}</td>
+                    <td>{{ object.quantity }}</td>
+                    <td>{{ object.line_down_at }}</td>
+                    <td>{{ object.uid }}</td>
+                    <td>{{ object.comments }}</td>
+                    <td>{{ object.status }}</td>
+                    <td>
+                        <a href="{% url 'material_update' pk=object.pk %}">Edit</a>
+                        <a href="{% url 'material_delete' pk=object.pk %}">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

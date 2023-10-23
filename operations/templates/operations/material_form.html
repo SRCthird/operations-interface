@@ -1,5 +1,11 @@
-<h1>{% if object %}Edit{% else %}Add{% endif %} My Model</h1>
-<form method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
+{% extends 'operations/base.html' %}
+
+{% block title %}Materials List - {{ block.super }}{% endblock %}
+{% block content %}
+    <h1>{% if object %}Edit{% else %}Add{% endif %} Materials</h1>
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}
+
