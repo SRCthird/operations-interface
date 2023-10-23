@@ -1,8 +1,10 @@
 import os
 from django.shortcuts import render
 from django.http import HttpRequest, JsonResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from .models import *
+from django.views.generic import ListView, UpdateView, CreateView, DeleteView
+from . import models
 import requests
 
 # Create your views here.
@@ -17,10 +19,10 @@ def get_part_numbers(request):
     """
     workorder_id = request.GET.get('workorder_id')
     if workorder_id:
-        workorder_instance = workorder.objects.get(pk=workorder_id)
+        workorder_instance = models.workorder.objects.get(pk=workorder_id)
         catalog_num = workorder_instance.catalog_number
         
-        part_numbers = catalog_material \
+        part_numbers = models.catalog_material \
             .objects \
             .filter(catalog_number=catalog_num) \
             .values_list('id', 'material_name')
@@ -112,3 +114,24 @@ def _404(request, exception="The requested page could not be found."):
         'exception': str(exception)
     }
     return render(request, 'operations/404.html', context, status=404)
+
+class MaterialListView(ListView):
+    model = models.material
+    template_name = 'operations/material_list.html'
+
+class MaterialUpdateView(UpdateView):
+    model = models.material
+    fields = ['line', 'request_type', 'workorder', 'part_number', 'quantity', 'line_down_at', 'uid', 'comments', 'delivery_status']
+    template_name = 'operations/material_form.html'
+    success_url = reverse_lazy('material_list')
+
+class MaterialCreateView(CreateView):
+    model = models.material
+    fields = ['line', 'request_type', 'workorder', 'part_number', 'quantity', 'line_down_at', 'uid', 'comments', 'delivery_status']
+    template_name = 'operations/material_form.html'
+    success_url = reverse_lazy('material_list')
+
+class MaterialDeleteView(DeleteView):
+    model = models.material
+    template_name = 'operations/material_confirm_delete.html'
+    success_url = reverse_lazy('material_list')
