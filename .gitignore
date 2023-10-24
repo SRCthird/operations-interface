@@ -18,7 +18,12 @@ settings.py
 templates/admin/*
 !templates/admin/base.html
 
-static/admin/*
+static/admin/css/*
+!static/admin/css/base.css
+
+static/admin/js/*
+
+static/admin/img/*
 
 # production
 /build
