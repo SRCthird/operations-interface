@@ -16,14 +16,16 @@ settings.py
 
 # Untouched templates 
 templates/admin/*
-!templates/admin/base.html
+!templates/admin/.gitignore
 
 static/admin/css/*
-!static/admin/css/base.css
+!static/admin/css/.gitignore
 
 static/admin/js/*
+!static/admin/js/.gitignore
 
 static/admin/img/*
+!static/admin/img/.gitignore
 
 # production
 /build
