@@ -244,8 +244,6 @@ body.light-mode .video-bg:before {
  }
 }
 
-
-
 .header-profile {
  display: flex;
  align-items: center;
@@ -290,6 +288,24 @@ body.light-mode .video-bg:before {
  object-fit: cover;
  border: 2px solid var(--theme-color);
  margin-left: 22px;
+}
+
+.view-tools {
+  width: 80.5em;
+ .search-bar,
+ .header-menu,
+ .notification,
+ .user-box {
+  display: none;
+ }
+  .user-tools {
+    display: flex;
+    max-width: 600px;
+    margin: auto;
+    transition: 0.4s;
+    box-shadow: 0 0 0 1px var(--border-color);
+    padding-left: 0;
+  }
 }
 
 .wide {

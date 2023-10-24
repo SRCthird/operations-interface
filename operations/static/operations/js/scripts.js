@@ -67,7 +67,12 @@ $(".pop-up .close").click(function () {
 });
 
 const toggleButton = document.querySelector(".dark-light");
-
 toggleButton.addEventListener("click", () => {
     document.body.classList.toggle("light-mode");
+});
+
+const userTools = document.querySelectorAll(".header-profile");
+const profileButton = document.querySelector(".profile-img");
+profileButton.addEventListener("click", () => {
+    userTools.classList.toggle("view-tools");
 });
