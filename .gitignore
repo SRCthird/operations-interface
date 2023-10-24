@@ -18,6 +18,8 @@ settings.py
 templates/admin/*
 !templates/admin/base.html
 
+static/admin/*
+
 # production
 /build
 
