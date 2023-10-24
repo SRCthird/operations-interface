@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms import TimeInput
 from django.utils import timezone
 import datetime
 
@@ -226,15 +227,14 @@ class schedule(models.Model):
 
 class material(models.Model):
     request_choice = [
-        (1, 'New Lot'),
-        (2, 'New Rack'),
-        (3, 'Replacement Rack'),
-        (4, 'Project Lot'),
+        ('New Lot', 'New Lot'),
+        ('New Rack', 'New Rack'),
+        ('Replacement Rack', 'Replacement Rack'),
+        ('Project Lot', 'Project Lot'),
     ]
     
     def default_time_down():
         """Get the current time + 90 minutes"""
-        print("Time now: ", timezone.now())
         return timezone.now() + datetime.timedelta(minutes=90)
     
     id = models.AutoField(
