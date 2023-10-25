@@ -10,7 +10,7 @@ html[data-theme="light"],
     --accent: #f5dd5d;
     --primary-fg: #fff;
 
-    --body-fg: #333;
+    --body-fg: #535353;
     --body-bg: #fff;
     --body-quiet-color: #666;
     --body-loud-color: #000;
@@ -605,6 +605,8 @@ input[type=button][disabled].default {
 }
 
 .module h2, .module caption, .inline-group h2 {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
     margin: 0;
     padding: 8px;
     font-weight: 400;
@@ -897,6 +899,8 @@ a.deletelink:focus, a.deletelink:hover {
 }
 
 #content-related {
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(49, 120, 198, 0.2);
     float: right;
     width: 260px;
     position: relative;
@@ -1030,6 +1034,7 @@ a.deletelink:focus, a.deletelink:hover {
 
 #content-related .module {
     background: none;
+    margin-bottom: 0;
 }
 
 #content-related h3 {
