@@ -23,12 +23,10 @@
     {% endblock %}
     {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
   </head>
-<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}" data-admin-utc-offset="{% now "Z" %}">
+<body>
   <a href="#content-start" class="skip-to-content-link">{% translate 'Skip to main content' %}</a>
   <div id="container">
-    {% if not is_popup %}
     <!-- Header -->
-    {% block header %}
     <div class="video-bg">
       <video width="320" height="240" autoplay loop muted>
         <source
@@ -104,44 +102,74 @@
         <div class="left-side">
           <!-- Section 1-->
           <div class="side-wrapper">
-            <div class="side-title">Categories</div>
+            <div class="side-title">Operations</div>
             <div class="side-menu">
               <!-- Catagory 1 -->
               <a href="#">
                 <img src="{% static 'icons/elm.png' %}">
-                Photography
+                Catalog Number
               </a>
               <!-- End Catagory 1 -->
               <!-- Catagory 2 -->
               <a href="#">
                 <img src="{% static 'icons/graphql.png' %}">
-                Graphic Design
+                Catalog Material
               </a>
               <!-- End Catagory 2 -->
               <!-- Catagory 3 -->
               <a href="#">
                 <img src="{% static 'icons/react.png' %}">
-                Video
+                Departments
               </a>
               <!-- End Catagory 3 -->
               <!-- Catagory 4 -->
               <a href="#">
                 <img src="{% static 'icons/r.png'%}">
-                Illustrations
+                Employees
               </a>
               <!-- End Catagory 4 -->
               <!-- Catagory 5 -->
               <a href="#">
                 <img src="{% static 'icons/python.png'%}">
-                UI/UX
+                Line Downtimes
               </a>
               <!-- End Catagory 5 -->
               <!-- Catagory 1 -->
               <a href="#">
                 <img src="{% static 'icons/typescript.png'%}">
-                3D/AR
+                Line Goals
               </a>
               <!-- End Catagory 5 -->
+              <!-- Catagory -->
+              <a href="#">
+                <img src="{% static 'icons/typescript.png'%}">
+                Line Rejects
+              </a>
+              <!-- End Catagory -->
+              <!-- Catagory -->
+              <a href="#">
+                <img src="{% static 'icons/typescript.png'%}">
+                Lines
+              </a>
+              <!-- End Catagory -->
+              <!-- Catagory -->
+              <a href="#">
+                <img src="{% static 'icons/typescript.png'%}">
+                Materials
+              </a>
+              <!-- End Catagory -->
+              <!-- Catagory -->
+              <a href="#">
+                <img src="{% static 'icons/typescript.png'%}">
+                Schedule
+              </a>
+              <!-- End Catagory -->
+              <!-- Catagory -->
+              <a href="#">
+                <img src="{% static 'icons/typescript.png'%}">
+                Workorders
+              </a>
+              <!-- End Catagory -->
             </div>
           </div>
           <!-- End Section 1-->
