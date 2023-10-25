@@ -250,6 +250,21 @@ body.light-mode .video-bg:before {
   border: 2px solid var(--theme-color);
   margin-left: 22px; }
 
+.view-tools {
+  width: 80.5em; }
+  .view-tools .search-bar,
+  .view-tools .header-menu,
+  .view-tools .notification,
+  .view-tools .user-box {
+    display: none; }
+  .view-tools .user-tools {
+    display: flex;
+    max-width: 600px;
+    margin: auto;
+    transition: 0.4s;
+    box-shadow: 0 0 0 1px var(--border-color);
+    padding-left: 0; }
+
 .wide {
   width: 80.5em; }
   .wide .header-menu,

@@ -108,6 +108,9 @@ def user_photo(request):
     except Exception as e:
         return HttpResponseServerError(str(e))
 
+def demo(request):
+    return render(request, 'operations/demo.html')
+
 def _404(request, exception="The requested page could not be found."):
     """404 view, for pages that aren't implemented yet or don't exsist."""
     context = {
