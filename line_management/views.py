@@ -60,14 +60,14 @@ def line_view(request, pk, shift):
             .order_by('-start_time') \
             .first()
         
-    if last_entry:
-        downtime_entries = models.downtime.objects.filter(pk=last_entry.pk)
-        downtime_entries = downtime_entries.annotate(
-            time_difference=ExpressionWrapper(
-                F('end_time') - F('start_time'),
-                output_field=fields.DurationField()
+        if last_entry:
+            downtime_entries = models.downtime.objects.filter(pk=last_entry.pk)
+            downtime_entries = downtime_entries.annotate(
+                time_difference=ExpressionWrapper(
+                    F('end_time') - F('start_time'),
+                    output_field=fields.DurationField()
+                )
             )
-        )
 
 
     if not downtime_entries.exists():
@@ -156,3 +156,9 @@ def update_downtime(request, downtime_id):
         else:
             print(form.errors)
     return JsonResponse({'status': 'failed'})
+
+def get_downtime_reasons(request, line):
+    reasons = models.line_reject.objects.filter(line=line).all()
+    print(reasons)
+    data = [(reason, reason) for reason in reasons]
+    return JsonResponse(data, safe=False)
