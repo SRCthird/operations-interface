@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.forms import TimeInput
 from django.utils import timezone
+from django.core.validators import MaxValueValidator, MinValueValidator
 import datetime
 
 # Create your models here.
@@ -290,15 +291,19 @@ class output(models.Model):
         on_delete=models.CASCADE,
         to_field='name'
     )
-    date = models.DateField()
+    date = models.DateTimeField()
     workorder = models.ForeignKey(
         workorder,
         on_delete=models.CASCADE,
         to_field='workorder'
     )
-    quantity = models.IntegerField()
+    start_unit = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(9999)]
+    )
+    end_unit = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(9999)]
+    )
     comments = models.TextField()
-    created = models.DateTimeField()
 
 class rejects(models.Model):
     id = models.AutoField(
