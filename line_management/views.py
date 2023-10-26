@@ -40,7 +40,7 @@ def line_view(request, pk, shift):
     
     downtime_entries = models.downtime.objects \
         .filter(line=line, start_time__date=today) \
-        .annotate( 
+        .annotate(
             time_difference=ExpressionWrapper(
                 F('end_time') - F('start_time'),
                 output_field=fields.DurationField()
@@ -48,11 +48,35 @@ def line_view(request, pk, shift):
         ) \
         .order_by('-start_time')
     
-    last_downtime_entry = downtime_entries.first()
-    currently_down = last_downtime_entry is not None and last_downtime_entry.end_time is None
-    downtime_id = last_downtime_entry if last_downtime_entry is not None else -1
+    if not downtime_entries.exists():
+        last_entry = models.downtime.objects \
+            .filter(line=line) \
+            .annotate(
+                time_difference=ExpressionWrapper(
+                    F('end_time') - F('start_time'),
+                    output_field=fields.DurationField()
+                )
+            ) \
+            .order_by('-start_time') \
+            .first()
+        
+    if last_entry:
+        downtime_entries = models.downtime.objects.filter(pk=last_entry.pk)
+        downtime_entries = downtime_entries.annotate(
+            time_difference=ExpressionWrapper(
+                F('end_time') - F('start_time'),
+                output_field=fields.DurationField()
+            )
+        )
 
-    #currently_down = True
+
+    if not downtime_entries.exists():
+        last_downtime_entry = models.downtime.objects.filter(pk=last_entry.pk)
+    else:
+        last_downtime_entry = downtime_entries.first()
+
+    currently_down = last_downtime_entry is not None and last_downtime_entry.end_time is None
+    downtime_id = last_downtime_entry.id
 
     reject_entries = models.reject.objects \
         .filter(
@@ -75,7 +99,7 @@ def line_view(request, pk, shift):
         'total_reject': total_reject,
         'total_downtime': total_downtime,
         'currently_down': currently_down,
-        'downtime_id': downtime_id.id,
+        'downtime_id': downtime_id,
         'unit_entries': unit_entries,
         'downtime_entries': downtime_entries,
     }
