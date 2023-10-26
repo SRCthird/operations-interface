@@ -24,14 +24,14 @@
         <button>&lt;</button>
         <div class=dropdown-container>
             <select class="shift-select">
-                <option>A Shift</option>
-                <option>B Shift</option>
-                <option>C Shift</option>
+                <option {% if shift == 'A' %}selected{% endif %}>A Shift</option>
+                <option {% if shift == 'B' %}selected{% endif %}>B Shift</option>
+                <option {% if shift == 'C' %}selected{% endif %}>C Shift</option>
             </select>
             <h3>V</h3>
         </div>
-        <h1>{{ line }} Production</h1> <!-- Placeholder for the title script -->
-        <img src="bug-icon.png" alt="Bug Icon"> <!-- Placeholder for the bug icon -->
+        <h1>{{ line }} Production</h1>
+        <img src="bug-icon.png" alt="Bug Icon"> <!-- Placeholder for the bug icon? -->
     </header>
         <div style="possition: relative;">
             <div class="alert" id="alert" style="{% if currently_down %}display: block;{% endif %}">

@@ -49,6 +49,7 @@ def line_view(request, pk, shift):
 
     context = {
         'line': line,
+        'shift': shift,
         'goal': goal_value,
         'total_units': total_units,
         'avg_units': avg_units,
@@ -58,4 +59,6 @@ def line_view(request, pk, shift):
         'unit_entries': unit_entries,
         'downtime_entries': downtime_entries,
     }
+
+    print(context)
     return render(request, 'line_management/line.html', context)
