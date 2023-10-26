@@ -33,11 +33,11 @@
         <h1>{{ line }} Production</h1> <!-- Placeholder for the title script -->
         <img src="bug-icon.png" alt="Bug Icon"> <!-- Placeholder for the bug icon -->
     </header>
-    <div style="possition: relative;">
-        <div class="alert" id="alert">
-            <button class="line-down" onclick="kill_alert()" >Click when line is back up!</button>
+        <div style="possition: relative;">
+            <div class="alert" id="alert" style="{% if currently_down %}display: block;{% endif %}">
+                <button class="line-down" onclick="kill_alert()" >Click when line is back up!</button>
+            </div>
         </div>
-    </div>
     <div class="container">
         
         <nav>

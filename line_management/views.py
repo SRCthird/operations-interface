@@ -33,8 +33,13 @@ def line_view(request, pk, shift):
                 F('end_time') - F('start_time'),
                 output_field=fields.DurationField()
             )
-        )
+        ) \
+        .order_by('-start_time')
     
+    last_downtime_entry = downtime_entries.first()
+    currently_down = last_downtime_entry is not None and last_downtime_entry.end_time is None
+    #currently_down = True
+
     reject_entries = models.reject.objects.filter(line=line, shift=shift, date=today)
 
     total_reject = reject_entries.aggregate(Sum('quantity'))['quantity__sum'] or 0
@@ -49,6 +54,7 @@ def line_view(request, pk, shift):
         'avg_units': avg_units,
         'total_reject': total_reject,
         'total_downtime': total_downtime,
+        'currently_down': currently_down,
         'unit_entries': unit_entries,
         'downtime_entries': downtime_entries,
     }
