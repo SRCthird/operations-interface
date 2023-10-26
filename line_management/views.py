@@ -159,6 +159,4 @@ def update_downtime(request, downtime_id):
 
 def get_downtime_reasons(request, line):
     reasons = models.line_reject.objects.filter(line=line).all()
-    print(reasons)
-    data = [(reason, reason) for reason in reasons]
-    return JsonResponse(data, safe=False)
+    return JsonResponse(list(reasons.values('reason')), safe=False)
