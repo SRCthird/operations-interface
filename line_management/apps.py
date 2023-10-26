@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class LineManagmentConfig(AppConfig):
+class LineManagementConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'line_managment'
+    name = 'line_management'
