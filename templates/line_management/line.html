@@ -8,9 +8,29 @@
     <title>Production UI</title>
 </head>
 <body>
-    <div class="line-up-form">
-        
+    <!-- Reject reason input form -->
+    <div class="popup-background" id="popupBackground">
+        <div class="popup">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <h2>Feedback Form</h2>
+            <form>
+                {% csrf_token %}
+                <input type="hidden" name="employee" value="{{ request.user.username }}">
+                <label for="reasons">Reasons:</label>
+                <select id="reasons" name="reasons">
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+                <br><br>
+                <label for="comments">Comments:</label>
+                <textarea id="comments" name="comments" rows="4" cols="30"></textarea>
+                <br><br>
+                <button type="button" data-downtime-id="{{ downtime_id }}" onclick="submitDowntimeForm(this)">Submit Downtime</button>
+            </form>
+        </div>
     </div>
+    <!-- End Reject reason input form -->
     <div class="video-bg">
         <video width="320" height="240" autoplay loop muted>
             <source
@@ -35,14 +55,19 @@
     </header>
         <div style="possition: relative;">
             <div class="alert" id="alert" style="{% if currently_down %}display: block;{% endif %}">
-                <button class="line-down" onclick="kill_alert()" >Click when line is back up!</button>
+                <button class="line-down" onclick="showPopup()" >Click when line is back up!</button>
             </div>
         </div>
     <div class="container">
         
         <nav>
             <button id="hourly">Hourly Input</button>
-            <button id="line-down">Line Down</button>
+            <button 
+                id="line-down" 
+                data-employee="{{ request.user.username }}" 
+                data-line="{{ line }}"
+                onclick="createDowntime(this)"
+            >Line Down</button>
             <button id="reject">Reject Input</button>
             <button id="schedule">View Schedule</button>
         </nav>
@@ -104,7 +129,7 @@
                                 <td>{{ item.workorder }}</td>
                                 <td>{{ item.actual_good }}</td>
                                 <td>{{ item.start_unit }}</td>
-                                <td>{{ item.stop_unit }}</td>
+                                <td>{{ item.end_unit }}</td>
                                 <td>{{ item.comments }}</td>
                             </tr>
                         {% endfor %}
