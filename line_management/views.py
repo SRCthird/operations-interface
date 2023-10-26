@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.db.models import Avg, F, Sum, ExpressionWrapper, fields
+from django.http import JsonResponse
 from operations import models
+from . import forms
 from datetime import timedelta
 
 def line_view(request, pk, shift):
@@ -73,9 +75,60 @@ def line_view(request, pk, shift):
         'total_reject': total_reject,
         'total_downtime': total_downtime,
         'currently_down': currently_down,
-        'downtime_id': downtime_id,
+        'downtime_id': downtime_id.id,
         'unit_entries': unit_entries,
         'downtime_entries': downtime_entries,
     }
 
     return render(request, 'line_management/line.html', context)
+
+def create_downtime(request):
+    """
+    Creates a new downtime entry.
+    :param request: The body of the POST request.
+    :return: A JSON response with the status of the request.
+    """
+    if request.method == 'POST':
+        form = forms.DowntimeCreateForm(request.POST)
+        if form.is_valid():
+            print("is valid")
+            downtime = models.downtime()
+            downtime.start_time = timezone.now()
+            downtime.line = get_object_or_404(models.line, pk=form.cleaned_data['line'])
+
+            username = form.cleaned_data['employee']
+            employee = get_object_or_404(models.employee, user__username=username)
+
+            downtime.employee_start_id = employee.id
+            downtime.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            print(form.errors)
+    return JsonResponse({'status': 'failed'})
+
+def update_downtime(request, downtime_id):
+    """
+    Creates a new downtime entry.
+    :param request: The body of the POST request.
+    :param downtime_id: The primary key of the downtime entry being updated.
+    :return: A JSON response with the status of the request.
+    """
+    if request.method == 'POST':
+        print("is POST")
+        form = forms.DowntimeUpdateForm(request.POST)
+        if form.is_valid():
+            print("is valid")
+            downtime = models.downtime.objects.get(pk=downtime_id, end_time__isnull=True)
+            downtime.end_time = timezone.now()
+
+            username = form.cleaned_data['employee']
+            employee_obj = get_object_or_404(models.employee, user__username=username)
+            downtime.employee_end_id = employee_obj.id
+
+            downtime.reason = form.cleaned_data['reason']
+            downtime.comment = form.cleaned_data['comments']
+            downtime.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            print(form.errors)
+    return JsonResponse({'status': 'failed'})
