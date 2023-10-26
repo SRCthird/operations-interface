@@ -167,13 +167,13 @@ class catalog_material(models.Model):
 
 class workorder(models.Model):
     status_choice = [
-        (1, 'Released'),
-        (2, 'In Progress'),
-        (3, 'On Hold'),
-        (4, 'Rework'),
-        (5, 'Lot Release'),
-        (6, 'Scrapped'),
-        (7, 'Completed'),
+        ('Released', 'Released'),
+        ('In Progress', 'In Progress'),
+        ('On Hold', 'On Hold'),
+        ('Rework', 'Rework'),
+        ('Lot Release', 'Lot Release'),
+        ('Scrapped', 'Scrapped'),
+        ('Completed', 'Completed'),
     ]
     workorder = models.CharField(
         max_length=25, 
@@ -355,8 +355,14 @@ class downtime(models.Model):
         on_delete=models.CASCADE,
         related_name='downtime_start_set'
     )
-    end_time = models.DateTimeField()
-    reason = models.TextField()
+    end_time = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+    reason = models.TextField(
+        null=True,
+        blank=True
+    )
     comment = models.TextField(
         null=True,
         blank=True
@@ -364,9 +370,11 @@ class downtime(models.Model):
     employee_end = models.ForeignKey(
         employee, 
         on_delete=models.CASCADE,
-        related_name='downtime_end_set'
+        related_name='downtime_end_set',
+        null=True,
+        blank=True
     )
 
     def __str__(self):
-        return f"Duration: {self.start_time - self.end_time}"
+        return f"Downtime for {self.line} on {self.start_time}"
     
