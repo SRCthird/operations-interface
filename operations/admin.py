@@ -1,6 +1,6 @@
 from manager import settings
 from django.contrib import admin
-from django.db.models import Sum
+from django.db.models import Sum, F
 from django.utils.dateformat import DateFormat
 from . import forms
 from .models import *
@@ -164,10 +164,9 @@ class WorkorderAdmin(admin.ModelAdmin):
 
     def sum_quantity_output(self, obj):
         # Calculate the sum of quantity from related operations_output
-        total_quantity = output \
-            .objects \
+        total_quantity = output.objects \
             .filter(workorder=obj) \
-            .aggregate(Sum('quantity'))['quantity__sum']
+            .aggregate(total=Sum(F('end_unit') - F('start_unit')))['total']
 
         # Check if total_quantity is None (no matching rows) and return 0 instead
         return total_quantity if total_quantity is not None else 0
