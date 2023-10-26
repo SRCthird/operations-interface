@@ -6,7 +6,7 @@ from . import models, forms
 class ElementAdmin(admin.ModelAdmin):
     form = forms.ElementForm
     list_display = ('id', 'name', 'content')
-    list_filter = ('name', 'content',)
+    list_filter = ('name',)
     search_fields = ('name', 'content',)
 
     fieldsets = (

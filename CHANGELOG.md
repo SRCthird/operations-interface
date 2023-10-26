@@ -6,3 +6,7 @@
 
 ## Bug fixes:
 -
+
+## Todo:
+- Tablet Formatting
+- 

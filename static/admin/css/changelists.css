@@ -45,7 +45,7 @@
 
 #changelist .paginator {
     color: var(--body-quiet-color);
-    border-bottom: 1px solid var(--hairline-color);
+    border: none;
     background: var(--body-bg);
     overflow: hidden;
 }
@@ -278,7 +278,7 @@
     border-bottom: none;
     line-height: 1.5rem;
     color: var(--body-quiet-color);
-    width: 100%;
+    width: fit-content;
 }
 
 #changelist .actions span.all,
