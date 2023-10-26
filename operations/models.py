@@ -37,6 +37,13 @@ class line(models.Model):
         return self.name
     
 class line_goal(models.Model):
+    shift_choices = [
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C'),
+        ('D', 'D'),
+        ('E', 'E'),
+    ]
     id = models.AutoField(
         primary_key=True
     )
@@ -46,7 +53,9 @@ class line_goal(models.Model):
         to_field='name'
     )
     shift = models.CharField(
-        max_length=1
+        max_length=1,
+        choices=shift_choices,
+        default='A'
     )
     total_good = models.IntegerField()
     total_downtime = models.IntegerField()
@@ -305,7 +314,7 @@ class output(models.Model):
     )
     comments = models.TextField()
 
-class rejects(models.Model):
+class reject(models.Model):
     id = models.AutoField(
         primary_key=True
     )
@@ -348,6 +357,10 @@ class downtime(models.Model):
     )
     end_time = models.DateTimeField()
     reason = models.TextField()
+    comment = models.TextField(
+        null=True,
+        blank=True
+    )
     employee_end = models.ForeignKey(
         employee, 
         on_delete=models.CASCADE,
