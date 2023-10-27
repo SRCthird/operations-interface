@@ -13,7 +13,7 @@
     <div class="popup-background" id="popupBackground">
         <div class="popup">
             <span class="close-btn" onclick="closePopup()">&times;</span>
-            <h2>Feedback Form</h2>
+            <h2>Downtime Form</h2>
             <form>
                 {% csrf_token %}
                 <input type="hidden" name="employee" value="{{ request.user.username }}">
