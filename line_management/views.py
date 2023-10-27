@@ -1,10 +1,24 @@
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from django.db.models import Avg, F, Sum, ExpressionWrapper, fields
+from django.db.models import Avg, F, Sum, ExpressionWrapper, fields, Func, Value
 from django.http import JsonResponse
+from datetime import timedelta
+
 from operations import models
 from . import forms
-from datetime import timedelta
+
+class TimeDiff(Func):
+    function = 'TIMEDIFF'
+    output_field = fields.CharField()
+
+class TimeFormat(Func):
+    function = 'TIME_FORMAT'
+    output_field = fields.CharField()
+
+class TimeDiffSeconds(Func):
+    function = 'TIMESTAMPDIFF'
+    template = '%(function)s(SECOND, %(expressions)s)'
+    output_field = fields.IntegerField()
 
 def line_view(request, pk, shift):
     """
@@ -38,40 +52,51 @@ def line_view(request, pk, shift):
             )
         )
     
+    last_entry = models.downtime.objects \
+        .filter(line=line) \
+        .annotate(
+            time_difference=TimeFormat(
+                ExpressionWrapper(
+                    Func(F('end_time'), F('start_time'), function='TIMEDIFF'),
+                    output_field=fields.CharField()
+                ),
+                Value('%H:%i')
+            )
+        ) \
+        .annotate(
+            time_difference_seconds=TimeDiffSeconds(
+                F('start_time'),
+                F('end_time')
+            )
+        ) \
+        .order_by('-start_time') \
+        .first()
+
     downtime_entries = models.downtime.objects \
         .filter(line=line, start_time__date=today) \
         .annotate(
-            time_difference=ExpressionWrapper(
-                F('end_time') - F('start_time'),
-                output_field=fields.DurationField()
+            time_difference=TimeFormat(
+                ExpressionWrapper(
+                    Func(F('end_time'), F('start_time'), function='TIMEDIFF'),
+                    output_field=fields.CharField()
+                ),
+                Value('%H:%i')
+            )
+        ) \
+        .annotate(
+            time_difference_seconds=TimeDiffSeconds(
+                F('start_time'),
+                F('end_time')
             )
         ) \
         .order_by('-start_time')
+
+    print(str(downtime_entries.query))
     
     if not downtime_entries.exists():
-        last_entry = models.downtime.objects \
-            .filter(line=line) \
-            .annotate(
-                time_difference=ExpressionWrapper(
-                    F('end_time') - F('start_time'),
-                    output_field=fields.DurationField()
-                )
-            ) \
-            .order_by('-start_time') \
-            .first()
-        
         if last_entry:
-            downtime_entries = models.downtime.objects.filter(pk=last_entry.pk)
-            downtime_entries = downtime_entries.annotate(
-                time_difference=ExpressionWrapper(
-                    F('end_time') - F('start_time'),
-                    output_field=fields.DurationField()
-                )
-            )
-
-
-    if not downtime_entries.exists():
-        last_downtime_entry = models.downtime.objects.filter(pk=last_entry.pk)
+            downtime_entries = last_entry
+        last_downtime_entry = last_entry
     else:
         last_downtime_entry = downtime_entries.first()
 
@@ -88,7 +113,15 @@ def line_view(request, pk, shift):
     total_reject = reject_entries.aggregate(Sum('quantity'))['quantity__sum'] or 0
     avg_units = unit_entries.aggregate(average_difference=Avg(F('end_unit') - F('start_unit')))['average_difference'] or 0
     total_units = unit_entries.aggregate(Sum('actual_good'))['actual_good__sum'] or 0
-    total_downtime = downtime_entries.aggregate(total_downtime=Sum('time_difference'))['total_downtime'] or timedelta(seconds=0)
+    total_seconds = downtime_entries.aggregate(total_downtime=Sum('time_difference_seconds'))['total_downtime'] or timedelta(seconds=0)
+
+    if total_seconds is not None:
+        # Convert seconds to hh:mm format
+        hours, remainder = divmod(total_seconds, 3600)
+        minutes, _ = divmod(remainder, 60)
+        total_time_str = "{:02}:{:02}".format(int(hours), int(minutes))
+    else:
+        total_time_str = "00:00"
 
     context = {
         'line': line,
@@ -97,7 +130,7 @@ def line_view(request, pk, shift):
         'total_units': total_units,
         'avg_units': avg_units,
         'total_reject': total_reject,
-        'total_downtime': total_downtime,
+        'total_downtime': total_time_str,
         'currently_down': currently_down,
         'downtime_id': downtime_id,
         'unit_entries': unit_entries,
