@@ -115,7 +115,8 @@
                                 <th>Time</th>
                                 <th>Employee</th>
                                 <th>Workorder</th>
-                                <th>Actual</th>
+                                <th>Actual Good</th>
+                                <th>Total Rejects</th>
                                 <th>Starting Unit</th>
                                 <th>Ending Unit</th>
                                 <th>Comments</th>
@@ -124,13 +125,14 @@
                         <tbody>
                         {% for item in unit_entries %}
                             <tr>
-                                <td>{{ item.date }}</td>
-                                <td>{{ item.employee }}</td>
-                                <td>{{ item.workorder }}</td>
-                                <td>{{ item.actual_good }}</td>
-                                <td>{{ item.start_unit }}</td>
-                                <td>{{ item.end_unit }}</td>
-                                <td>{{ item.comments }}</td>
+                                <td>{{ item.4 }}</td>
+                                <td>{{ item.1 }}</td>
+                                <td>{{ item.8 }}</td>
+                                <td>{{ item.2 }}</td>
+                                <td>{{ item.3 }}</td>
+                                <td>{{ item.10 }}</td>
+                                <td>{{ item.9 }}</td>
+                                <td>{{ item.5 }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
