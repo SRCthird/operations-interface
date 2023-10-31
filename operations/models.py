@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.forms import TimeInput
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 import datetime
@@ -8,7 +7,7 @@ import datetime
 # Create your models here.
 class department(models.Model):
     id = models.CharField(
-        max_length=25, 
+        max_length=25,
         primary_key=True
     )
     name = models.CharField(
@@ -22,20 +21,20 @@ class department(models.Model):
 
 class line(models.Model):
     name = models.CharField(
-        max_length=255, 
+        max_length=255,
         primary_key=True,
         help_text="Enter the name of the line. This field must be unique."
     )
     description = models.TextField()
     department = models.ForeignKey(
-        department, 
-        on_delete=models.CASCADE, 
+        department,
+        on_delete=models.CASCADE,
         null=True
     )
 
     def __str__(self):
         return self.name
-    
+
 class line_goal(models.Model):
     shift_choices = [
         ('A', 'A'),
@@ -48,7 +47,7 @@ class line_goal(models.Model):
         primary_key=True
     )
     line = models.ForeignKey(
-        line, 
+        line,
         on_delete=models.CASCADE,
         to_field='name'
     )
@@ -60,13 +59,13 @@ class line_goal(models.Model):
     total_good = models.IntegerField()
     total_downtime = models.IntegerField()
     percent_reject = models.DecimalField(
-        max_digits=5, 
+        max_digits=5,
         decimal_places=2
     )
 
     def __str__(self):
         return f"{self.line}: {self.shift} Shift"
-    
+
     class Meta:
         verbose_name = "Line Goal"
         ordering = ['line', 'shift']
@@ -76,7 +75,7 @@ class line_reject(models.Model):
         primary_key=True
     )
     line = models.ForeignKey(
-        line, 
+        line,
         on_delete=models.CASCADE,
         to_field='name'
     )
@@ -86,7 +85,7 @@ class line_reject(models.Model):
 
     def __str__(self):
         return f"{self.line}: {self.reason}"
-    
+
     class Meta:
         verbose_name = "Line Reject"
 
@@ -95,7 +94,7 @@ class line_downtime(models.Model):
         primary_key=True
     )
     line = models.ForeignKey(
-        line, 
+        line,
         on_delete=models.CASCADE,
         to_field='name'
     )
@@ -105,26 +104,27 @@ class line_downtime(models.Model):
 
     def __str__(self):
         return f"{self.line}: {self.reason}"
-    
+
     class Meta:
         verbose_name = "Line Downtime"
+
 class employee(models.Model):
     user = models.OneToOneField(
-        User, 
+        User,
         on_delete=models.CASCADE
     )
     department_id = models.ForeignKey(
-        department,  
+        department,
         on_delete=models.CASCADE,
         to_field='id'
     )
     role = models.CharField(
         max_length=25
     )
-    
+
     def __str__(self):
         return self.user.username
-    
+
 class catalog_number(models.Model):
     catalog_number = models.CharField(
         max_length=255,
@@ -136,7 +136,7 @@ class catalog_number(models.Model):
 
     def __str__(self):
         return self.catalog_number
-    
+
     class Meta:
         verbose_name = "Catalog Number"
 
@@ -145,7 +145,7 @@ class catalog_material(models.Model):
         primary_key=True
     )
     catalog_number = models.ForeignKey(
-        catalog_number, 
+        catalog_number,
         on_delete=models.CASCADE,
         to_field='catalog_number'
     )
@@ -161,7 +161,7 @@ class catalog_material(models.Model):
 
     def __str__(self):
         return f"{self.catalog_number}: {self.material_name}"
-    
+
     class Meta:
         verbose_name = "Catalog Material"
 
@@ -176,7 +176,7 @@ class workorder(models.Model):
         ('Completed', 'Completed'),
     ]
     workorder = models.CharField(
-        max_length=25, 
+        max_length=25,
         primary_key=True
     )
     lot_number = models.CharField(
@@ -188,7 +188,7 @@ class workorder(models.Model):
         default='Scheduled'
     )
     catalog_number = models.ForeignKey(
-        catalog_number,  
+        catalog_number,
         on_delete=models.CASCADE,
         to_field='catalog_number'
     )
@@ -216,7 +216,7 @@ class workorder(models.Model):
 
     def __str__(self):
         return self.workorder
-    
+
 class schedule(models.Model):
     id = models.AutoField(
         primary_key=True
@@ -227,7 +227,7 @@ class schedule(models.Model):
         to_field='workorder'
     )
     line = models.ForeignKey(
-        line, 
+        line,
         on_delete=models.CASCADE,
         to_field='name'
     )
@@ -242,16 +242,16 @@ class material(models.Model):
         ('Replacement Rack', 'Replacement Rack'),
         ('Project Lot', 'Project Lot'),
     ]
-    
+
     def default_time_down():
         """Get the current time + 90 minutes"""
         return timezone.now() + datetime.timedelta(minutes=90)
-    
+
     id = models.AutoField(
         primary_key=True
     )
     line = models.ForeignKey(
-        line, 
+        line,
         on_delete=models.CASCADE,
         to_field='name'
     )
@@ -260,12 +260,12 @@ class material(models.Model):
         choices=request_choice
     )
     workorder = models.ForeignKey(
-        workorder, 
+        workorder,
         on_delete=models.CASCADE,
         to_field='workorder'
     )
     part_number = models.ForeignKey(
-        catalog_material, 
+        catalog_material,
         on_delete=models.CASCADE
     )
     quantity = models.IntegerField()
@@ -273,7 +273,7 @@ class material(models.Model):
         default=default_time_down
     )
     uid = models.ForeignKey(
-        employee, 
+        employee,
         on_delete=models.CASCADE
     )
     comments = models.TextField()
@@ -283,20 +283,20 @@ class material(models.Model):
 
     def __str__(self):
         return f"{self.workorder} on {self.line}: {self.part_number} {self.quantity}"
-    
+
 class output(models.Model):
     id = models.AutoField(
         primary_key=True
     )
     employee = models.ForeignKey(
-        employee, 
+        employee,
         on_delete=models.CASCADE
     )
     shift = models.CharField(
         max_length=1
     )
     line = models.ForeignKey(
-        line, 
+        line,
         on_delete=models.CASCADE,
         to_field='name'
     )
@@ -319,14 +319,14 @@ class reject(models.Model):
         primary_key=True
     )
     employee = models.ForeignKey(
-        employee, 
+        employee,
         on_delete=models.CASCADE
     )
     shift = models.CharField(
         max_length=1
     )
     line = models.ForeignKey(
-        line, 
+        line,
         on_delete=models.CASCADE,
         to_field='name'
     )
@@ -345,13 +345,13 @@ class downtime(models.Model):
         primary_key=True
     )
     line = models.ForeignKey(
-        line, 
+        line,
         on_delete=models.CASCADE,
         to_field='name'
     )
     start_time = models.DateTimeField()
     employee_start = models.ForeignKey(
-        employee, 
+        employee,
         on_delete=models.CASCADE,
         related_name='downtime_start_set'
     )
@@ -368,7 +368,7 @@ class downtime(models.Model):
         blank=True
     )
     employee_end = models.ForeignKey(
-        employee, 
+        employee,
         on_delete=models.CASCADE,
         related_name='downtime_end_set',
         null=True,
@@ -377,4 +377,3 @@ class downtime(models.Model):
 
     def __str__(self):
         return f"Downtime for {self.line} on {self.start_time}"
-    
