@@ -3,6 +3,7 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
+    {% csrf_token %}
     <meta name="line" content="{{ line }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'line_management/css/styles.css' %}">
@@ -46,7 +47,7 @@
             <div class="alert" id="alert" style="{% if currently_down %}display: block;{% endif %}">
                 <button 
                     class="line-down" 
-                    hx-get="/htmx/2/?line={{line}}&downtime_id={{downtime_id}}"
+                    hx-get="/htmx/downtime/{{downtime_id}}"
                     hx-target="form"
                     hx-swap="innerHTML"
                     onclick="showPopup()"
