@@ -1,0 +1,15 @@
+<div>
+    {% csrf_token %}
+    <input type="hidden" name="employee" value="{{ request.user.username }}">
+    <label for="reasons">Reasons:</label>
+    <select name="reasons">
+    {% for reason in downtime_reasons %}
+        <option value="{{ reason }}">{{ reason }}</option>
+    {% endfor %}
+    </select>
+    <br><br>
+    <label for="comments">Comments:</label>
+    <textarea id="comments" name="comments" rows="4" cols="30"></textarea>
+    <br><br>
+    <button type="button" data-downtime-id="{{ downtime_id }}" onclick="submitDowntimeForm(this)">Submit Downtime</button>
+</div>

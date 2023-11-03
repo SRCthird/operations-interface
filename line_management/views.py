@@ -49,19 +49,19 @@ def line_view(request, pk, shift):
     """
 
     # Initializing variables
-    today = timezone.now().date() 
+    today = timezone.now().date()
     line = get_object_or_404(models.line, pk=pk)
     goal = get_object_or_404(models.line_goal, line=line, shift=shift)
-    goal_value = goal.total_good / 8 
+    goal_value = goal.total_good / 8
 
     # Getting all data from output table and appending end_unit-start_unit + 1
     with connection.cursor() as cursor:
         cursor.execute(
-            """SELECT *, 
+            """SELECT *,
                 COALESCE(end_unit - start_unit + 1, 0) AS total_good
-            FROM operations_output
-            WHERE line_id = %s AND DATE(date) = %s
-            ORDER BY date;
+                FROM operations_output
+                WHERE line_id = %s AND DATE(date) = %s
+                ORDER BY date;
             """, [line, today]
         )
         result = cursor.fetchall()
@@ -83,18 +83,18 @@ def line_view(request, pk, shift):
         # Get the number of good units in the line between this entry and last
         with connection.cursor() as cursor:
             cursor.execute(
-                """SELECT COALESCE(SUM(quantity), 0) 
-                FROM operations_reject
-                WHERE 
-                    created > %s AND 
-                    created <= %s AND 
-                    line_id = %s;
+                """SELECT COALESCE(SUM(quantity), 0)
+                    FROM operations_reject
+                    WHERE
+                        created > %s AND
+                        created <= %s AND
+                        line_id = %s;
                 """, [last_time, current_time, line]
             )
             current_reject = cursor.fetchall()[0][0] # Just return the number
 
         # actual good is total made - rejected units
-        actual_total_good = row[9] - current_reject        
+        actual_total_good = row[9] - current_reject
 
         # Find the username of the user based of the of user id
         username = usernames.get(user_id, 'DefaultUsername').upper()  # 'DefaultUsername' or some other default
@@ -154,7 +154,7 @@ def line_view(request, pk, shift):
             )
         ) \
         .order_by('-start_time')
-    
+
     # If there are no downtime entries for today, then always display at least 1 entry
     if not downtime_entries.exists():
         if last_entry:
@@ -166,16 +166,17 @@ def line_view(request, pk, shift):
     # Verify if the machine is currently down
     currently_down = last_downtime_entry is not None and last_downtime_entry.end_time is None
 
-    try: # Not sure if this will every cause an error, but just in case I threw it in a try/catch
+    try:
         downtime_id = last_downtime_entry.id
     except Exception as e:
+        downtime_id = -1
         print(e)
 
     # Get all reject entries of this shift, line and day
     reject_entries = models.reject.objects \
-        .filter( 
-            line=line, 
-            shift=shift, 
+        .filter(
+            line=line,
+            shift=shift,
             date=today
         )
 
@@ -264,7 +265,3 @@ def update_downtime(request, downtime_id):
         else:
             print(form.errors)
     return JsonResponse({'status': 'failed'})
-
-def get_downtime_reasons(request, line):
-    reasons = models.line_reject.objects.filter(line=line).all()
-    return JsonResponse(list(reasons.values('reason')), safe=False)

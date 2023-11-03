@@ -1,4 +1,3 @@
-
 const lineDown = document.getElementById('line-down');
 const alert = document.getElementById('alert');
 
@@ -81,64 +80,3 @@ const createDowntime = (button) => {
     })
     .catch(error => console.error('Error:', error));
 }
-
-/**
- * 
- * @param {HTMLElement} field - The HTML element to be modified.
- * @param {string} endpoint - The server endpoint where the information will be fetched.
- */
-const cascadingDropdown = (field, endpoint) => {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'X-CSRFToken': csrfToken,
-        },
-    })
-        .then(response => {
-            if (response.status !== 200) {
-                console.error("There was an error with the AJAX request.", response.status);
-                return [];
-            }
-            return response.json();
-        })
-        .then(data => {
-            while (field.firstChild) {
-                field.firstChild.remove();
-            }
-
-            data.forEach(item => {
-                const option = document.createElement("option");
-                option.value = item.reason;
-                option.textContent = item.reason;
-                field.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error("There was a problem with the fetch operation:", error.message);
-        });
-}
-
-/**
- * The line is  from the dropdown, a request is sent to the server to retieve the corresponding part numbers.
- * 
- * @returns {void} - This function modifies the part number dropdown.
- */
-const lineToReason = () => {
-    /** The line to be selected */
-    const line = document.querySelector('meta[name="line"]').getAttribute('content');
-
-    /** The reasons dropdown to be modified */
-    const reasons = document.getElementById("reasons");
-    
-    if (line && reasons) {
-        const endpoint = `/operations/get_downtime_reasons/${line}`;
-        cascadingDropdown(reasons, endpoint);
-    } else {
-        console.error("Fields not found");
-        return;
-    }
-}
-
-document.addEventListener("DOMContentLoaded", lineToReason);

@@ -1,10 +1,21 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Element
-from django.http import HttpResponse
+from django.shortcuts import render
+from operations import models
 
 def index(request, element_id=None):
-    if element_id == None:
-        element = get_object_or_404(Element, id=1)
+    line = request.GET.get('line')
+    downtime_id = request.GET.get('downtime_id')
+    reasons = models.line_downtime.objects.filter(line=line).all()
+    downtime_reasons = [obj.reason for obj in reasons]
+
+    if element_id == None or element_id == 1:
+        html = 'htmx/index.html'
+    if element_id == 2:
+        html = 'htmx/downtimeForm.html'
     else:
-        element = get_object_or_404(Element, id=element_id)
-    return render(request, 'htmx/index.html', {'element': element})
+        html = 'htmx/index.html'
+
+    context = {
+        'downtime_reasons': downtime_reasons,
+        'downtime_id': downtime_id,
+    }
+    return render(request, html, context)

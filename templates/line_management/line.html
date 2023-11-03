@@ -15,17 +15,7 @@
             <span class="close-btn" onclick="closePopup()">&times;</span>
             <h2>Downtime Form</h2>
             <form>
-                {% csrf_token %}
-                <input type="hidden" name="employee" value="{{ request.user.username }}">
-                <label for="reasons">Reasons:</label>
-                <select id="reasons" name="reasons">
-                    <!-- Placeholder for downtime reasons -->
-                </select>
-                <br><br>
-                <label for="comments">Comments:</label>
-                <textarea id="comments" name="comments" rows="4" cols="30"></textarea>
-                <br><br>
-                <button type="button" data-downtime-id="{{ downtime_id }}" onclick="submitDowntimeForm(this)">Submit Downtime</button>
+                <!-- Place holder for HTMX form-->
             </form>
         </div>
     </div>
@@ -54,7 +44,13 @@
     </header>
         <div style="possition: relative;">
             <div class="alert" id="alert" style="{% if currently_down %}display: block;{% endif %}">
-                <button class="line-down" onclick="showPopup()" >Click when line is back up!</button>
+                <button 
+                    class="line-down" 
+                    hx-get="/htmx/2/?line={{line}}&downtime_id={{downtime_id}}"
+                    hx-target="form"
+                    hx-swap="innerHTML"
+                    onclick="showPopup()"
+                >Click when line is back up!</button>
             </div>
         </div>
     <div class="container">
@@ -169,5 +165,6 @@
         </section>
     </div>
     <script src="{% static 'line_management/js/scripts.js' %}"></script>
+    <script src="https://unpkg.com/htmx.org"></script>
 </body>
 </html>
