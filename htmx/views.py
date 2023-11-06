@@ -8,22 +8,38 @@ def downtimeForm(request, id):
     reasons = models.line_downtime \
         .objects \
         .filter(
-            line = downtime_record.line
+            line=downtime_record.line
         ) \
         .all()
 
     downtime_reasons = [obj.reason for obj in reasons]
 
-    content = { 
+    content = {
         'title': 'Downtime Form',
         'downtime_reasons': downtime_reasons,
         'downtime_id': id,
     }
     return render(request, 'htmx/downtimeForm.html', content)
 
+
 def outputForm(request, line):
 
     pass
 
+
 def rejectForm(request, line):
-    pass
+
+    reasons = models.line_reject \
+        .objects \
+        .filter(
+            line=line
+        ) \
+        .all()
+    print(reasons)
+    reject_reasons = [obj.reason for obj in reasons]
+
+    content = {
+        'title': 'Reject Form',
+        'reject_reasons': reject_reasons,
+    }
+    return render(request, 'htmx/rejectForm.html', content)

@@ -1,4 +1,4 @@
-<h2>Reject Form</h2>
+<h2>{{ title }}</h2>
 <form>
     {% csrf_token %}
     <input type="hidden" name="employee" value="{{ request.user.username }}">
