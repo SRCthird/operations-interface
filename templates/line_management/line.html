@@ -10,17 +10,16 @@
     <title>Production UI</title>
 </head>
 <body>
-    <!-- Reject reason input form -->
+    <!-- Input form -->
     <div class="popup-background" id="popupBackground">
         <div class="popup">
             <span class="close-btn" onclick="closePopup()">&times;</span>
-            <h2>Downtime Form</h2>
-            <form>
-                <!-- Place holder for HTMX form-->
-            </form>
+            <div id="form">
+                <!-- Place holder for form -->
+            </div>
         </div>
     </div>
-    <!-- End Reject reason input form -->
+    <!-- End input form -->
     <div class="video-bg">
         <video width="320" height="240" autoplay loop muted>
             <source
@@ -48,7 +47,7 @@
                 <button 
                     class="line-down" 
                     hx-get="/htmx/downtime/{{downtime_id}}"
-                    hx-target="form"
+                    hx-target="#form"
                     hx-swap="innerHTML"
                     onclick="showPopup()"
                 >Click when line is back up!</button>
@@ -57,7 +56,13 @@
     <div class="container">
         
         <nav>
-            <button id="hourly">Hourly Input</button>
+            <button 
+                id="hourly"
+                hx-get="/htmx/input/{{line}}"
+                hx-target="#form"
+                hx-swap="innerHTML"
+                onclick="showPopup()"
+            >Hourly Input</button>
             <button 
                 id="line-down" 
                 {% if currently_down %}disabled{% endif %}
@@ -65,7 +70,13 @@
                 data-line="{{ line }}"
                 onclick="createDowntime(this)"
             >Line Down</button>
-            <button id="reject">Reject Input</button>
+            <button 
+                id="reject"
+                hx-get="/htmx/input/{{line}}"
+                hx-target="#form"
+                hx-swap="innerHTML"
+                onclick="showPopup()"
+            >Reject Input</button>
             <button id="schedule">View Schedule</button>
         </nav>
 

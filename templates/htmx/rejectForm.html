@@ -1,0 +1,23 @@
+<h2>Reject Form</h2>
+<form>
+    {% csrf_token %}
+    <input type="hidden" name="employee" value="{{ request.user.username }}">
+    <input type="hidden" name="line" value="{{ line }}">
+    <label for="shift">Shift:</label>
+    <input type="text" name="shift" required>
+    <label for="workorder">Workorder:</label>
+    <input type="text" name="workorder" required>
+    <label for="quantity">Quantity:</label>
+    <input type="number" name="quantity" required>
+    <label for="reasons">Reasons:</label>
+    <select name="reasons" required>
+        {% for reason in reject_reasons %}
+        <option value="{{ reason }}">{{ reason }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+    <label for="comments">Comments:</label>
+    <textarea id="comments" name="comments" rows="4" cols="30"></textarea>
+    <br><br>
+    <button type="button" onclick="submitRejectForm(this)">Submit Downtime</button>
+</form>

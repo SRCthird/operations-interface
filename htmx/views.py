@@ -5,7 +5,8 @@ from operations import models
 def downtimeForm(request, id):
     downtime_record = get_object_or_404(models.downtime, id=id)
 
-    reasons = models.line_downtime.objects \
+    reasons = models.line_downtime \
+        .objects \
         .filter(
             line = downtime_record.line
         ) \
@@ -13,10 +14,16 @@ def downtimeForm(request, id):
 
     downtime_reasons = [obj.reason for obj in reasons]
 
-    content = {
+    content = { 
+        'title': 'Downtime Form',
         'downtime_reasons': downtime_reasons,
         'downtime_id': id,
     }
     return render(request, 'htmx/downtimeForm.html', content)
 
+def outputForm(request, line):
 
+    pass
+
+def rejectForm(request, line):
+    pass

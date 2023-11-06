@@ -80,3 +80,25 @@ const createDowntime = (button) => {
     })
     .catch(error => console.error('Error:', error));
 }
+
+const submitRejectForm = () => {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const line  = document.querySelector('input[name=line]').value;
+    const employee = document.querySelector('input[name=employee]').value;
+    const shift = document.querySelector('input[name=shift]').value;
+    const workorder = document.querySelector('input[name=workorder]').value;
+    const quantity = document.querySelector('input[name=quantity]').value;
+    const reason = document.querySelector('select[name="reasons"]').value;
+    const comments = document.querySelector('textarea[name="comments"]').value;
+    
+    const body = new URLSearchParams();
+    body.append('line', line);
+    body.append('line', line);
+    body.append('line', line);
+    body.append('line', line);
+    body.append('line', line);
+    body.append('line', line);
+    body.append('line', line);
+
+
+}
