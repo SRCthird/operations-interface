@@ -174,13 +174,13 @@ class WorkorderAdmin(admin.ModelAdmin):
 
 @admin.register(schedule)
 class ScheduleAdmin(admin.ModelAdmin):
-    list_display = ('workorder', 'line')
-    list_filter = ('workorder', 'line')
-    search_fields = ('workorder', 'line')
+    list_display = ('workorder', 'line', 'status')
+    list_filter = ('workorder', 'line', 'status')
+    search_fields = ('workorder', 'line', 'status')
 
     fieldsets = (
         ('Schedule Information', {
-            'fields': ('workorder', 'line')
+            'fields': ('workorder', 'line', 'status')
         }),
     )
 
