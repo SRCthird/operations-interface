@@ -58,11 +58,11 @@
         <nav>
             <button 
                 id="hourly"
-                hx-get="/htmx/input/{{line}}"
+                hx-get="/htmx/output/{{line}}/{{shift}}"
                 hx-target="#form"
                 hx-swap="innerHTML"
                 onclick="showPopup()"
-            >Hourly Input</button>
+            >Hourly Output</button>
             <button 
                 id="line-down" 
                 {% if currently_down %}disabled{% endif %}
@@ -72,7 +72,7 @@
             >Line Down</button>
             <button 
                 id="reject"
-                hx-get="/htmx/reject/{{line}}"
+                hx-get="/htmx/reject/{{line}}/{{shift}}"
                 hx-target="#form"
                 hx-swap="innerHTML"
                 onclick="showPopup()"
