@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.enums import Choices
 from django.utils import timezone
 from django.core.validators import MaxValueValidator, MinValueValidator
 import datetime
@@ -218,6 +219,12 @@ class workorder(models.Model):
         return self.workorder
 
 class schedule(models.Model):
+    status_choices = [
+        ('On-Deck', 'On-Deck'),
+        ('In-Process', 'In-Process'),
+        ('Completed', 'Completed')
+    ]
+
     id = models.AutoField(
         primary_key=True
     )
@@ -230,6 +237,11 @@ class schedule(models.Model):
         line,
         on_delete=models.CASCADE,
         to_field='name'
+    )
+    status = models.CharField(
+        max_length = 25,
+        choices = status_choices,
+        default = 'On-Deck'
     )
 
     def __str__(self):
@@ -312,6 +324,8 @@ class output(models.Model):
     end_unit = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(9999)]
     )
+    safety = models.BooleanField()
+    quality = models.BooleanField()
     comments = models.TextField()
 
 class reject(models.Model):
@@ -330,7 +344,7 @@ class reject(models.Model):
         on_delete=models.CASCADE,
         to_field='name'
     )
-    date = models.DateField()
+    date = models.DateTimeField()
     workorder = models.ForeignKey(
         workorder,
         on_delete=models.CASCADE,
@@ -338,7 +352,6 @@ class reject(models.Model):
     )
     quantity = models.IntegerField()
     reason = models.TextField()
-    created = models.DateTimeField()
 
 class downtime(models.Model):
     id = models.AutoField(
