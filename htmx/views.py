@@ -22,12 +22,40 @@ def downtimeForm(request, id):
     return render(request, 'htmx/downtimeForm.html', content)
 
 
-def outputForm(request, line):
+def outputForm(request, line, shift):
 
-    pass
+    workorder = models.schedule \
+        .objects \
+        .filter(
+            line=line,
+            status='In-Process'
+        ) \
+        .first() \
+
+    try:
+        start_unit = models.output \
+             .objects \
+             .filter(workorder=workorder.workorder) \
+             .order_by("-date") \
+             .first() \
+             .start_unit
+    except Exception as e:
+        print("Error:", e)
+        workorder = ""
+        start_unit = 1
+
+    content = {
+        'title': 'Hourly Output Form',
+        'shift': shift,
+        'line': line,
+        'workorder': workorder,
+        'start_unit': start_unit,
+    }
+
+    return render(request, 'htmx/outputForm.html', content)
 
 
-def rejectForm(request, line):
+def rejectForm(request, line, shift):
 
     reasons = models.line_reject \
         .objects \
@@ -40,6 +68,7 @@ def rejectForm(request, line):
 
     content = {
         'title': 'Reject Form',
+        'shift': shift,
         'reject_reasons': reject_reasons,
     }
     return render(request, 'htmx/rejectForm.html', content)
