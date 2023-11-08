@@ -4,7 +4,7 @@
     <input type="hidden" name="employee" value="{{ request.user.username }}">
     <input type="hidden" name="line" value="{{ line }}">
     <label for="shift">Shift:</label>
-    <input type="text" name="shift" required>
+    <input type="text" name="shift" value="{{ shift }}" required>
     <label for="workorder">Workorder:</label>
     <input type="text" name="workorder" required>
     <label for="quantity">Quantity:</label>
