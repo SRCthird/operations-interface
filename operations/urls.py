@@ -12,4 +12,5 @@ urlpatterns = [
     path('line/<str:pk>/<str:shift>/', line_views.line_view, name='line_view'),
     path('update_downtime/<int:downtime_id>/', line_views.update_downtime, name='update_downtime'),
     path('create_downtime/', line_views.create_downtime, name='create_downtime'),
+    path('create_reject/', line_views.create_reject, name='create_reject'),
 ]

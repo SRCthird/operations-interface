@@ -68,6 +68,7 @@ def rejectForm(request, line, shift):
 
     content = {
         'title': 'Reject Form',
+        'line': line,
         'shift': shift,
         'reject_reasons': reject_reasons,
     }

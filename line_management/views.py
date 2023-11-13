@@ -8,10 +8,12 @@ from django.db import connection
 from operations import models
 from . import forms
 
+
 class TimeDiff(Func):
     """Returns the difference of two DateTimes in dd:mm:ss.ms format"""
     function = 'TIMEDIFF'
     output_field = fields.CharField()
+
 
 class TimeFormat(Func):
     """
@@ -24,11 +26,13 @@ class TimeFormat(Func):
     function = 'TIME_FORMAT'
     output_field = fields.CharField()
 
+
 class TimeDiffSeconds(Func):
     """Returns the difference of two DateTimes in seconds"""
     function = 'TIMESTAMPDIFF'
     template = '%(function)s(SECOND, %(expressions)s)'
     output_field = fields.IntegerField()
+
 
 def line_view(request, pk, shift):
     """
@@ -91,16 +95,18 @@ def line_view(request, pk, shift):
                         line_id = %s;
                 """, [last_time, current_time, line]
             )
-            current_reject = cursor.fetchall()[0][0] # Just return the number
+            current_reject = cursor.fetchall()[0][0]  # Just return the number
 
         # actual good is total made - rejected units
         actual_total_good = row[9] - current_reject
 
         # Find the username of the user based of the of user id
-        username = usernames.get(user_id, 'DefaultUsername').upper()  # 'DefaultUsername' or some other default
+        # 'DefaultUsername' or some other default
+        username = usernames.get(user_id, 'DefaultUsername').upper()
 
         # Append to actual_total
-        actual_total.append((row[0], username, actual_total_good, current_reject, *row[2:]))
+        actual_total.append(
+            (row[0], username, actual_total_good, current_reject, *row[2:]))
 
         # Save this time as last time
         last_time = current_time
@@ -109,7 +115,7 @@ def line_view(request, pk, shift):
     actual_good_sum = sum(row[2] for row in actual_total)
 
     # Calculate the avg or return 0
-    try: 
+    try:
         avg_units = round(actual_good_sum / len(actual_total))
     except ZeroDivisionError:
         avg_units = 0
@@ -119,7 +125,7 @@ def line_view(request, pk, shift):
         .filter(line=line) \
         .annotate(
             time_difference=TimeFormat(
-                ExpressionWrapper( # Return the difference in DateTime
+                ExpressionWrapper(  # Return the difference in DateTime
                     Func(F('end_time'), F('start_time'), function='TIMEDIFF'),
                     output_field=fields.CharField()
                 ),
@@ -128,7 +134,7 @@ def line_view(request, pk, shift):
         ) \
         .annotate(
             time_difference_seconds=TimeDiffSeconds(
-                F('start_time'), # Return the difference in seconds
+                F('start_time'),  # Return the difference in seconds
                 F('end_time')
             )
         ) \
@@ -140,7 +146,7 @@ def line_view(request, pk, shift):
         .filter(line=line, start_time__date=today) \
         .annotate(
             time_difference=TimeFormat(
-                ExpressionWrapper( # Return the difference in DateTime
+                ExpressionWrapper(  # Return the difference in DateTime
                     Func(F('end_time'), F('start_time'), function='TIMEDIFF'),
                     output_field=fields.CharField()
                 ),
@@ -149,7 +155,7 @@ def line_view(request, pk, shift):
         ) \
         .annotate(
             time_difference_seconds=TimeDiffSeconds(
-                F('start_time'), # Return the difference in seconds
+                F('start_time'),  # Return the difference in seconds
                 F('end_time')
             )
         ) \
@@ -181,11 +187,13 @@ def line_view(request, pk, shift):
         )
 
     # Get the sum of all reject entries
-    total_reject = reject_entries.aggregate(Sum('quantity'))['quantity__sum'] or 0
+    total_reject = reject_entries.aggregate(
+        Sum('quantity'))['quantity__sum'] or 0
 
     # Calculate the total downtime or return 0
     try:
-        total_seconds = downtime_entries.aggregate(total_downtime=Sum('time_difference_seconds'))['total_downtime'] or 0
+        total_seconds = downtime_entries.aggregate(total_downtime=Sum(
+            'time_difference_seconds'))['total_downtime'] or 0
     except Exception as e:
         print(e)
         total_seconds = 0
@@ -215,6 +223,7 @@ def line_view(request, pk, shift):
 
     return render(request, 'line_management/line.html', context)
 
+
 def create_downtime(request):
     """
     Creates a new downtime entry.
@@ -227,10 +236,12 @@ def create_downtime(request):
             print("is valid")
             downtime = models.downtime()
             downtime.start_time = timezone.now()
-            downtime.line = get_object_or_404(models.line, pk=form.cleaned_data['line'])
+            downtime.line = get_object_or_404(
+                models.line, pk=form.cleaned_data['line'])
 
             username = form.cleaned_data['employee']
-            employee = get_object_or_404(models.employee, user__username=username)
+            employee = get_object_or_404(
+                models.employee, user__username=username)
 
             downtime.employee_start_id = employee.id
             downtime.save()
@@ -238,6 +249,7 @@ def create_downtime(request):
         else:
             print(form.errors)
     return JsonResponse({'status': 'failed'})
+
 
 def update_downtime(request, downtime_id):
     """
@@ -251,11 +263,13 @@ def update_downtime(request, downtime_id):
         form = forms.DowntimeUpdateForm(request.POST)
         if form.is_valid():
             print("is valid")
-            downtime = models.downtime.objects.get(pk=downtime_id, end_time__isnull=True)
+            downtime = models.downtime.objects.get(
+                pk=downtime_id, end_time__isnull=True)
             downtime.end_time = timezone.now()
 
             username = form.cleaned_data['employee']
-            employee_obj = get_object_or_404(models.employee, user__username=username)
+            employee_obj = get_object_or_404(
+                models.employee, user__username=username)
             downtime.employee_end_id = employee_obj.id
 
             downtime.reason = form.cleaned_data['reason']
@@ -265,3 +279,36 @@ def update_downtime(request, downtime_id):
         else:
             print(form.errors)
     return JsonResponse({'status': 'failed'})
+
+
+def create_reject(request):
+    if request.method == 'POST':
+        data = request.POST
+        employee_str = data.get('employee')
+        try:
+            line = get_object_or_404(models.line, name=data.get('line'))
+            workorder = get_object_or_404(
+                models.workorder, workorder=data.get('workorder'))
+            employee = get_object_or_404(
+                models.employee, user__username=employee_str)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'status': 'failed'})
+
+        reject = models.reject(
+            employee=employee,
+            shift=data.get('shift'),
+            line=line,
+            date=timezone.now(),
+            workorder=workorder,
+            quantity=data.get('quantity'),
+            reason=data.get('reason')
+        )
+
+        try:
+            reject.full_clean()
+            reject.save()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'status': 'failed'})
