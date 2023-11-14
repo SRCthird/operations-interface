@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db.models import F, Sum, ExpressionWrapper, fields, Func, Value
@@ -33,7 +34,7 @@ class TimeDiffSeconds(Func):
     template = '%(function)s(SECOND, %(expressions)s)'
     output_field = fields.IntegerField()
 
-
+@login_required
 def line_view(request, pk, shift):
     """
     A Basic dashboard of the given line.
@@ -47,7 +48,7 @@ def line_view(request, pk, shift):
             VALUES ('B', now(), 2, 'Step Seam', now(), 1, 'Demo', 'WJ4012346');
     :test3: INSERT INTO operations_downtime (start_time, employee_start_id, line_id)
             VALUES (now(), 1, 'Demo');
-    :test4: UPDATE operations_downtime SET 
+    :test4: UPDATE operations_downtime SET
             end_time = now(), employee_end_id = 1, reason = 'Down for Maintenance', comments = 'This is a demonstation' 
             WHERE id = 1;
     """
@@ -90,15 +91,15 @@ def line_view(request, pk, shift):
                 """SELECT COALESCE(SUM(quantity), 0)
                     FROM operations_reject
                     WHERE
-                        created > %s AND
-                        created <= %s AND
+                        date > %s AND
+                        date <= %s AND
                         line_id = %s;
                 """, [last_time, current_time, line]
             )
             current_reject = cursor.fetchall()[0][0]  # Just return the number
 
         # actual good is total made - rejected units
-        actual_total_good = row[9] - current_reject
+        actual_total_good = row[7] - current_reject
 
         # Find the username of the user based of the of user id
         # 'DefaultUsername' or some other default
@@ -111,7 +112,6 @@ def line_view(request, pk, shift):
         # Save this time as last time
         last_time = current_time
 
-    print(actual_total)
     actual_good_sum = sum(row[2] for row in actual_total)
 
     # Calculate the avg or return 0
@@ -183,7 +183,7 @@ def line_view(request, pk, shift):
         .filter(
             line=line,
             shift=shift,
-            date=today
+            date__gt=today
         )
 
     # Get the sum of all reject entries
@@ -233,7 +233,6 @@ def create_downtime(request):
     if request.method == 'POST':
         form = forms.DowntimeCreateForm(request.POST)
         if form.is_valid():
-            print("is valid")
             downtime = models.downtime()
             downtime.start_time = timezone.now()
             downtime.line = get_object_or_404(
@@ -253,16 +252,14 @@ def create_downtime(request):
 
 def update_downtime(request, downtime_id):
     """
-    Creates a new downtime entry.
+    Updates the current downtime entry.
     :param request: The body of the POST request.
     :param downtime_id: The primary key of the downtime entry being updated.
     :return: A JSON response with the status of the request.
     """
     if request.method == 'POST':
-        print("is POST")
         form = forms.DowntimeUpdateForm(request.POST)
         if form.is_valid():
-            print("is valid")
             downtime = models.downtime.objects.get(
                 pk=downtime_id, end_time__isnull=True)
             downtime.end_time = timezone.now()
@@ -282,6 +279,11 @@ def update_downtime(request, downtime_id):
 
 
 def create_reject(request):
+    """
+    Creates a new reject entry.
+    :param request: The body of the POST request.
+    :return: A JSON response with the status of the request.
+    """
     if request.method == 'POST':
         data = request.POST
         employee_str = data.get('employee')
@@ -308,6 +310,47 @@ def create_reject(request):
         try:
             reject.full_clean()
             reject.save()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'status': 'failed'})
+
+
+def create_output(request):
+    """
+    Creates a new output entry.
+    :param request: The body of the POST request.
+    :return: A JSON response with the status of the request.
+    """
+    if request.method == 'POST':
+        data = request.POST
+        employee_str = data.get('employee')
+        try:
+            line = get_object_or_404(models.line, name=data.get('line'))
+            workorder = get_object_or_404(
+                models.workorder, workorder=data.get('workorder'))
+            employee = get_object_or_404(
+                models.employee, user__username=employee_str)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'status': 'failed'})
+
+        output = models.output(
+            employee=employee,
+            shift=data.get('shift'),
+            line=line,
+            date=timezone.now(),
+            workorder=workorder,
+            start_unit=data.get('start_unit'),
+            end_unit=data.get('end_unit'),
+            safety=data.get('safety'),
+            quality=data.get('quality'),
+            comments=data.get('comments')
+        )
+
+        try:
+            output.full_clean()
+            output.save()
             return JsonResponse({'status': 'success'})
         except Exception as e:
             print(e)

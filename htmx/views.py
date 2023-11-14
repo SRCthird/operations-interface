@@ -24,7 +24,7 @@ def downtimeForm(request, id):
 
 def outputForm(request, line, shift):
 
-    workorder = models.schedule \
+    workorder_obj = models.schedule \
         .objects \
         .filter(
             line=line,
@@ -33,12 +33,14 @@ def outputForm(request, line, shift):
         .first() \
 
     try:
+        workorder = workorder_obj.workorder
         start_unit = models.output \
              .objects \
              .filter(workorder=workorder.workorder) \
              .order_by("-date") \
              .first() \
-             .start_unit
+             .end_unit
+        start_unit += 1
     except Exception as e:
         print("Error:", e)
         workorder = ""
