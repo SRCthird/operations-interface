@@ -119,3 +119,46 @@ const submitRejectForm = () => {
         })
         .catch((error) => console.error("Error:", error));
 };
+
+const submitOutputForm = () => {
+    const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+    const line = document.querySelector("input[name=line]").value;
+    const employee = document.querySelector("input[name=employee]").value;
+    const shift = document.querySelector("input[name=shift]").value;
+    const workorder = document.querySelector("input[name=workorder]").value;
+    const start_unit = document.querySelector("input[name=start]").value;
+    const end_unit = document.querySelector("input[name=end]").value;
+    const safety = document.querySelector("input[name=safety]").value ? 1 : 0;
+    const quality = document.querySelector("input[name=quality]").value ? 1 : 0;
+    const comments = document.querySelector('textarea[name="comments"]').value;
+
+    const body = new URLSearchParams();
+    body.append("line", line);
+    body.append("employee", employee);
+    body.append("shift", shift);
+    body.append("workorder", workorder);
+    body.append("start_unit", start_unit);
+    body.append("end_unit", end_unit);
+    body.append("safety", safety);
+    body.append("quality", quality);
+    body.append("comments", comments);
+
+    fetch(`/operations/create_output/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-CSRFToken": csrfToken,
+        },
+        body: body.toString(),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status === "success") {
+                console.log("Reject created successfully");
+                location.reload();
+            } else {
+                console.log("Failed to create Reject:", data.errors);
+            }
+        })
+        .catch((error) => console.error("Error:", error));
+};

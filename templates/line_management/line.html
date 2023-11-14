@@ -40,7 +40,11 @@
             <h3>V</h3>
         </div>
         <h1>{{ line }} Production</h1>
-        <img src="bug-icon.png" alt="Bug Icon"> <!-- Placeholder for the bug icon? -->
+        <form id="logout-form" method="post" action="/operations/logout/?next=/operations/login">
+            <strong>Welcome, {% firstof user.get_short_name %}!   </strong>
+            {% csrf_token %}
+            <button type="submit">Log out</button>
+        </form>
     </header>
         <div style="possition: relative;">
             <div class="alert" id="alert" style="{% if currently_down %}display: block;{% endif %}">
