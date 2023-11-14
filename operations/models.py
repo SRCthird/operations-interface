@@ -6,6 +6,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 import datetime
 
 # Create your models here.
+
+
 class department(models.Model):
     id = models.CharField(
         max_length=25,
@@ -19,6 +21,7 @@ class department(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class line(models.Model):
     name = models.CharField(
@@ -35,6 +38,7 @@ class line(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class line_goal(models.Model):
     shift_choices = [
@@ -71,6 +75,7 @@ class line_goal(models.Model):
         verbose_name = "Line Goal"
         ordering = ['line', 'shift']
 
+
 class line_reject(models.Model):
     id = models.AutoField(
         primary_key=True
@@ -89,6 +94,7 @@ class line_reject(models.Model):
 
     class Meta:
         verbose_name = "Line Reject"
+
 
 class line_downtime(models.Model):
     id = models.AutoField(
@@ -109,6 +115,7 @@ class line_downtime(models.Model):
     class Meta:
         verbose_name = "Line Downtime"
 
+
 class employee(models.Model):
     user = models.OneToOneField(
         User,
@@ -126,6 +133,7 @@ class employee(models.Model):
     def __str__(self):
         return self.user.username
 
+
 class catalog_number(models.Model):
     catalog_number = models.CharField(
         max_length=255,
@@ -140,6 +148,7 @@ class catalog_number(models.Model):
 
     class Meta:
         verbose_name = "Catalog Number"
+
 
 class catalog_material(models.Model):
     id = models.AutoField(
@@ -165,6 +174,7 @@ class catalog_material(models.Model):
 
     class Meta:
         verbose_name = "Catalog Material"
+
 
 class workorder(models.Model):
     status_choice = [
@@ -218,6 +228,7 @@ class workorder(models.Model):
     def __str__(self):
         return self.workorder
 
+
 class schedule(models.Model):
     status_choices = [
         ('On-Deck', 'On-Deck'),
@@ -239,13 +250,14 @@ class schedule(models.Model):
         to_field='name'
     )
     status = models.CharField(
-        max_length = 25,
-        choices = status_choices,
-        default = 'On-Deck'
+        max_length=25,
+        choices=status_choices,
+        default='On-Deck'
     )
 
     def __str__(self):
         return f"{self.workorder} on {self.line}"
+
 
 class material(models.Model):
     request_choice = [
@@ -296,6 +308,7 @@ class material(models.Model):
     def __str__(self):
         return f"{self.workorder} on {self.line}: {self.part_number} {self.quantity}"
 
+
 class output(models.Model):
     id = models.AutoField(
         primary_key=True
@@ -328,6 +341,7 @@ class output(models.Model):
     quality = models.BooleanField()
     comments = models.TextField()
 
+
 class reject(models.Model):
     id = models.AutoField(
         primary_key=True
@@ -352,6 +366,7 @@ class reject(models.Model):
     )
     quantity = models.IntegerField()
     reason = models.TextField()
+
 
 class downtime(models.Model):
     id = models.AutoField(
