@@ -4,7 +4,7 @@ from line_management import views as line_views
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.OperationView.as_view(), name='operations'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), {'next_page': '/operations/login/'}, name='logout'),
     path('demo/', views.demo, name='demo'),

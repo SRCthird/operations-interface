@@ -1,10 +1,11 @@
 import os
 from django.shortcuts import render
-from django.http import HttpRequest, JsonResponse, HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpRequest, HttpResponseRedirect, JsonResponse, HttpResponseBadRequest, HttpResponseServerError
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, UpdateView, CreateView, DeleteView
-from . import models
+from . import models, forms
 import requests
 
 # Create your views here.
@@ -95,18 +96,18 @@ def user_photo(request):
         profile_image_url = 'https://graph.microsoft.com/v1.0/me/photo/$value'
         target_directory = 'operations/static/profiles'
         target_file_path = os.path.join(
-                target_directory,
-                f"{user['mailNickname']}.jpeg"
-            )
+            target_directory,
+            f"{user['mailNickname']}.jpeg"
+        )
 
         if not os.path.exists(target_directory):
             os.makedirs(target_directory, exist_ok=True)
 
         response = requests.get(
-                profile_image_url,
-                headers={'Authorization': f'Bearer {token}'},
-                stream=True
-            )
+            profile_image_url,
+            headers={'Authorization': f'Bearer {token}'},
+            stream=True
+        )
 
         if response.status_code == 200:
             with open(target_file_path, 'wb') as file:
@@ -114,9 +115,9 @@ def user_photo(request):
                     file.write(chunk)
 
             return JsonResponse(
-                    {'url': f'/static/profile/{user["mailNickname"]}.jpeg'},
-                    status=200
-                )
+                {'url': f'/static/profile/{user["mailNickname"]}.jpeg'},
+                status=200
+            )
 
         else:
             return HttpResponseServerError('Error fetching image')
@@ -162,3 +163,35 @@ class MaterialDeleteView(DeleteView):
     model = models.material
     template_name = 'operations/material_confirm_delete.html'
     success_url = reverse_lazy('material_list')
+
+
+class OperationView(View):
+    """
+    A view that gets/sets the cookie for the current_line variable.
+    :returns: A redirect to the current line or a form asking which line to choose. 
+    """
+    form_class = forms.LineForm
+    template_name = 'operations/line_select.html'
+
+    def get(self, request, *args, **kwargs):
+        # Check if 'current_line' is a variable in the site's cookies
+        if 'current_line' in request.COOKIES:
+            # If it is, redirect to 'operations/line/<int:current_line>/A'
+            current_line = request.COOKIES['current_line']
+            return HttpResponseRedirect(f'/operations/line/{current_line}/A')
+        else:
+            # If 'current_line' is not in cookies, display the form
+            form = self.form_class()
+            return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            # If the form is valid, get the current line from the form
+            current_line = form.cleaned_data['current_line']
+            response = HttpResponseRedirect(f'/operations/line/{current_line}/A')
+            # Save the current line in cookies if the user has requested to do so
+            if form.cleaned_data['save_line']:
+                response.set_cookie('current_line', current_line)
+            return response
+        return render(request, self.template_name, {'form': form})
