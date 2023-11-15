@@ -35,11 +35,11 @@ def outputForm(request, line, shift):
     try:
         workorder = workorder_obj.workorder
         start_unit = models.output \
-             .objects \
-             .filter(workorder=workorder.workorder) \
-             .order_by("-date") \
-             .first() \
-             .end_unit
+            .objects \
+            .filter(workorder=workorder.workorder) \
+            .order_by("-date") \
+            .first() \
+            .end_unit
         start_unit += 1
     except Exception as e:
         print("Error:", e)
@@ -59,19 +59,39 @@ def outputForm(request, line, shift):
 
 def rejectForm(request, line, shift):
 
+    workorder_obj = models.schedule \
+        .objects \
+        .filter(
+            line=line,
+            status='In-Process'
+        ) \
+        .first() \
+
     reasons = models.line_reject \
         .objects \
         .filter(
             line=line
         ) \
         .all()
-    print(reasons)
-    reject_reasons = [obj.reason for obj in reasons]
+    try:
+        workorder = workorder_obj.workorder
+    except Exception as e:
+        workorder = ""
+
+    try:
+        reject_reasons = [obj.reason for obj in reasons]
+    except Exception as e:
+        print("Error:", e)
+        # Create default reject reasons if line doesn't have any.
+        reject_reasons = [
+            "See Comments",
+        ]
 
     content = {
         'title': 'Reject Form',
         'line': line,
         'shift': shift,
+        'workorder': workorder,
         'reject_reasons': reject_reasons,
     }
     return render(request, 'htmx/rejectForm.html', content)

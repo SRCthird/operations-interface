@@ -4,11 +4,11 @@
     <input type="hidden" name="employee" value="{{ request.user.username }}">
     <input type="hidden" name="shift" required value="{{ shift }}">
     <input type="hidden" name="line" value="{{ line }}">
-    <label for="workorder">Workorder</label>
+    <label for="workorder">Workorder</label><br>
     <input type="text" name="workorder" value="{{ workorder }}" required><br>
-    <label for="start">Starting Unit</label>
+    <label for="start">Starting Unit</label><br>
     <input type="number" name="start" value="{{ start_unit }}" required><br>
-    <label for="end">Ending Unit</label>
+    <label for="end">Ending Unit</label><br>
     <input type="number" name="end" required><br>
     <label for "safety">Safety</label>
     <input type="checkbox" name="safety" checked value="1"><br>
