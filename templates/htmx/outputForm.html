@@ -2,21 +2,19 @@
 <form>
     {% csrf_token %}
     <input type="hidden" name="employee" value="{{ request.user.username }}">
-    <label for="shift">Shift:</label>
-    <input type="text" name="shift" required value="{{ shift }}">
+    <input type="hidden" name="shift" required value="{{ shift }}">
     <input type="hidden" name="line" value="{{ line }}">
-    <label for="workorder">Workorder:</label>
-    <input type="text" name="workorder" value="{{ workorder }}" required>
-    <label for="start">Starting Unit:</label>
-    <input type="number" name="start" value="{{ start_unit }}" required>
-    <label for="end">Ending Unit:</label>
-    <input type="number" name="end" required>
-    <label for "safety">Safety:</label>
-    <input type="checkbox" name="safety" checked value="1">
-    <label for "quality">Quality:</label>
-    <input type="checkbox" name="quality" checked value="1">
-    <br><br>
-    <label for="comments">Comments:</label>
+    <label for="workorder">Workorder</label>
+    <input type="text" name="workorder" value="{{ workorder }}" required><br>
+    <label for="start">Starting Unit</label>
+    <input type="number" name="start" value="{{ start_unit }}" required><br>
+    <label for="end">Ending Unit</label>
+    <input type="number" name="end" required><br>
+    <label for "safety">Safety</label>
+    <input type="checkbox" name="safety" checked value="1"><br>
+    <label for "quality">Quality</label>
+    <input type="checkbox" name="quality" checked value="1"><br>
+    <label for="comments">Comments</label>
     <textarea id="comments" name="comments" rows="4" cols="30"></textarea>
     <br><br>
     <button type="button" onclick="submitOutputForm(this)">Submit Downtime</button>

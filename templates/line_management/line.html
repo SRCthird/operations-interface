@@ -135,16 +135,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {% for item in unit_entries %}
+                        {% for output in actual_total %}
                             <tr>
-                                <td>{{ item.4 }}</td>
-                                <td>{{ item.1 }}</td>
-                                <td>{{ item.8 }}</td>
-                                <td>{{ item.2 }}</td>
-                                <td>{{ item.3 }}</td>
-                                <td>{{ item.10 }}</td>
-                                <td>{{ item.9 }}</td>
-                                <td>{{ item.5 }}</td>
+                                <td>{{ output.date }}</td>
+                                <td>{{ output.employee }}</td>
+                                <td>{{ output.workorder }}</td>
+                                <td>{{ output.actual_total_good }}</td>
+                                <td>{{ output.current_reject }}</td>
+                                <td>{{ output.start_unit }}</td>
+                                <td>{{ output.end_unit }}</td>
+                                <td>{{ output.comments }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

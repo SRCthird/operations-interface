@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db.models import F, Sum, ExpressionWrapper, fields, Func, Value
+from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from django.db import connection
 
@@ -34,6 +35,7 @@ class TimeDiffSeconds(Func):
     template = '%(function)s(SECOND, %(expressions)s)'
     output_field = fields.IntegerField()
 
+
 @login_required
 def line_view(request, pk, shift):
     """
@@ -60,59 +62,60 @@ def line_view(request, pk, shift):
     goal_value = goal.total_good / 8
 
     # Getting all data from output table and appending end_unit-start_unit + 1
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """SELECT *,
-                COALESCE(end_unit - start_unit + 1, 0) AS total_good
-                FROM operations_output
-                WHERE line_id = %s AND DATE(date) = %s
-                ORDER BY date;
-            """, [line, today]
-        )
-        result = cursor.fetchall()
-
-    # Get all relivent users
-    user_ids = {row[4] for row in result}
-    users = User.objects.filter(id__in=user_ids)
-    usernames = {user.id: user.username for user in users}
+    outputs = models.output.objects \
+        .filter(
+            line=line,
+            date__date=today
+        ) \
+        .annotate(
+            total_good=Coalesce(
+                F('end_unit') - F('start_unit') + Value(1),
+                Value(0)
+            )
+        ) \
+        .order_by('date')
 
     # Initialize loop variables
     actual_total = []
     last_time = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-    for row in result:
-        # Define new varaibles at the start of loop
-        current_time = row[2]
-        user_id = row[4]
+    for output in outputs:
+        # Define new variables at the start of loop
+        current_time = output.date
 
         # Get the number of good units in the line between this entry and last
-        with connection.cursor() as cursor:
-            cursor.execute(
-                """SELECT COALESCE(SUM(quantity), 0)
-                    FROM operations_reject
-                    WHERE
-                        date > %s AND
-                        date <= %s AND
-                        line_id = %s;
-                """, [last_time, current_time, line]
-            )
-            current_reject = cursor.fetchall()[0][0]  # Just return the number
+        current_reject = models.reject.objects \
+            .filter(
+                date__gt=last_time,
+                date__lte=current_time,
+                line_id=line
+            ) \
+            .aggregate(
+                total_reject=Coalesce(Sum('quantity'), Value(0))
+            )['total_reject']
 
         # actual good is total made - rejected units
-        actual_total_good = row[7] - current_reject
+        actual_total_good = output.total_good - current_reject
 
-        # Find the username of the user based of the of user id
-        # 'DefaultUsername' or some other default
-        username = usernames.get(user_id, 'DefaultUsername').upper()
+        employee = f"{output.employee}"
 
         # Append to actual_total
-        actual_total.append(
-            (row[0], username, actual_total_good, current_reject, *row[2:]))
+        actual_total.append({
+            'date': output.date,
+            'id': output.id,
+            'employee': employee.upper(),
+            'workorder': output.workorder,
+            'actual_total_good': actual_total_good,
+            'current_reject': current_reject,
+            'start_unit': output.start_unit,
+            'end_unit': output.end_unit,
+            'comments': output.comments,
+        })
 
         # Save this time as last time
         last_time = current_time
 
-    actual_good_sum = sum(row[2] for row in actual_total)
+    actual_good_sum = sum(row['actual_total_good'] for row in actual_total)
 
     # Calculate the avg or return 0
     try:
@@ -217,7 +220,7 @@ def line_view(request, pk, shift):
         'total_downtime': total_time_str,
         'currently_down': currently_down,
         'downtime_id': downtime_id,
-        'unit_entries': actual_total,
+        'actual_total': actual_total,
         'downtime_entries': downtime_entries,
     }
 
